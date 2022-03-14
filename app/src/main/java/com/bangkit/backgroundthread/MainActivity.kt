@@ -6,6 +6,11 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.reflect.Executable
 import java.util.concurrent.Executors
 
@@ -22,23 +27,18 @@ class MainActivity : AppCompatActivity() {
 
         // Implementing executor to solve the problem
         btnStart.setOnClickListener {
-            executor.execute {
-                try {
-                    for (i in 0..10) {
-                        Thread.sleep(500)
-                        val percentage = i * 10
-                        handler.post {
-                            // Update UI in main thread
-                            if (percentage == 100) {
-                                tvStatus.setText(R.string.task_completed)
-                            }
-                            else {
-                                tvStatus.text = String.format(getString(R.string.compressing), percentage)
-                            }
+            lifecycleScope.launch (Dispatchers.Default) {
+                for (i in 0..10) {
+                    delay(500)
+                    val percentage = i * 10
+                    withContext(Dispatchers.Main) {
+                        // Update UI in main thread
+                        if (percentage == 100) {
+                            tvStatus.setText(R.string.task_completed)
+                        } else {
+                            tvStatus.text = String.format(getString(R.string.compressing), percentage)
                         }
                     }
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
                 }
             }
         }

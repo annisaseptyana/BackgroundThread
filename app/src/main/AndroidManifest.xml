@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BackgroundThread">
         <activity
+            android:name=".Review"
+            android:exported="false" />
+        <activity
             android:name=".StartMenu"
             android:exported="false" />
         <activity

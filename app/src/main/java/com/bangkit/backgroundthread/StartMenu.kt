@@ -16,9 +16,13 @@ class StartMenu : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.title = "Menu"
-        
+
         binding.btnQuotes.setOnClickListener {
             startActivity(Intent(this@StartMenu, Quotes::class.java))
+        }
+
+        binding.btnReview.setOnClickListener {
+            startActivity(Intent(this@StartMenu, Review::class.java))
         }
 
     }

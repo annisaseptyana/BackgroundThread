@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         // Implementing executor to solve the problem
         btnStart.setOnClickListener {
 
-            val moveToQuotes = Intent(this@MainActivity, Quotes::class.java)
+            val moveToMenu = Intent(this@MainActivity, StartMenu::class.java)
             lifecycleScope.launch (Dispatchers.Default) {
                 for (i in 0..10) {
                     delay(500)
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
                         // Update UI in main thread
                         if (percentage == 100) {
                             tvStatus.setText(R.string.task_completed)
-                            startActivity(moveToQuotes)
+                            startActivity(moveToMenu)
                         } else {
                             tvStatus.text = String.format(getString(R.string.compressing), percentage)
                         }

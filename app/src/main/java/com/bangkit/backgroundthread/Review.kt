@@ -1,9 +1,11 @@
 package com.bangkit.backgroundthread
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bangkit.backgroundthread.databinding.ActivityReviewBinding
@@ -19,6 +21,25 @@ class Review : AppCompatActivity() {
     companion object {
         private const val TAG = "Review"
         private const val RESTAURANT_ID = "uewq1zg2zlskfw1e867"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityReviewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        supportActionBar?.hide()
+        val layoutManager = LinearLayoutManager(this)
+        binding.rvReview.layoutManager = layoutManager
+        val itemDecoration = DividerItemDecoration(this, layoutManager.orientation)
+        binding.rvReview.addItemDecoration(itemDecoration)
+        findRestaurant()
+
+        binding.btnSend.setOnClickListener { view ->
+            postReview(binding.edReview.text.toString())
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -79,16 +100,26 @@ class Review : AppCompatActivity() {
         binding.edReview.setText("")
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityReviewBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        supportActionBar?.hide()
-        val layoutManager = LinearLayoutManager(this)
-        binding.rvReview.layoutManager = layoutManager
-        val itemDecoration = DividerItemDecoration(this, layoutManager.orientation)
-        binding.rvReview.addItemDecoration(itemDecoration)
-        findRestaurant()
+    private fun postReview(review: String) {
+        showLoading(true)
+        val client = APIConfig.getApiService().postReview(RESTAURANT_ID, "anak kucing", review)
+        client.enqueue(object : Callback<PostReviewResponse> {
+            override fun onResponse(
+                call: Call<PostReviewResponse>,
+                response: Response<PostReviewResponse>
+            ) {
+                showLoading(false)
+                val responseBody = response.body()
+                if (response.isSuccessful && responseBody != null) {
+                    setReviewData(responseBody.customerReviews)
+                } else {
+                    Log.e(TAG, "onFailure: ${response.message()}")
+                }
+            }
+            override fun onFailure(call: Call<PostReviewResponse>, t: Throwable) {
+                showLoading(false)
+                Log.e(TAG, "onFailure: ${t.message}")
+            }
+        })
     }
 }
